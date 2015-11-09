@@ -1,10 +1,9 @@
-From 3410b407040157a276456eaaa22c2297e302f70e Mon Sep 17 00:00:00 2001
+From a92cae8e527642dc90fe04eb8bbb14f020155978 Mon Sep 17 00:00:00 2001
 From: Jan Chaloupka <jchaloup@redhat.com>
-Date: Sat, 1 Aug 2015 10:42:54 +0200
+Date: Mon, 9 Nov 2015 12:35:45 +0100
 Subject: [PATCH] change internal to inteernal
 
 ---
- .../gcloud-golang/compute/metadata/metadata.go     |    2 +-
  .../cloud/compute/metadata/metadata.go             |    2 +-
  .../src/google.golang.org/cloud/inteernal/cloud.go |  128 ++
  .../cloud/inteernal/datastore/datastore_v1.pb.go   | 1633 ++++++++++++++++++++
@@ -14,7 +13,7 @@ Subject: [PATCH] change internal to inteernal
  .../cloud/internal/datastore/datastore_v1.pb.go    | 1633 --------------------
  .../cloud/internal/datastore/datastore_v1.proto    |  594 -------
  .../cloud/internal/testutil/context.go             |   57 -
- 10 files changed, 2414 insertions(+), 2414 deletions(-)
+ 9 files changed, 2413 insertions(+), 2413 deletions(-)
  create mode 100644 Godeps/_workspace/src/google.golang.org/cloud/inteernal/cloud.go
  create mode 100644 Godeps/_workspace/src/google.golang.org/cloud/inteernal/datastore/datastore_v1.pb.go
  create mode 100644 Godeps/_workspace/src/google.golang.org/cloud/inteernal/datastore/datastore_v1.proto
@@ -24,19 +23,6 @@ Subject: [PATCH] change internal to inteernal
  delete mode 100644 Godeps/_workspace/src/google.golang.org/cloud/internal/datastore/datastore_v1.proto
  delete mode 100644 Godeps/_workspace/src/google.golang.org/cloud/internal/testutil/context.go
 
-diff --git a/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go b/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go
-index b007cde..c92267f 100644
---- a/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go
-+++ b/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go
-@@ -30,7 +30,7 @@ import (
- 	"sync"
- 	"time"
- 
--	"google.golang.org/cloud/internal"
-+	"google.golang.org/cloud/inteernal"
- )
- 
- type cachedValue struct {
 diff --git a/Godeps/_workspace/src/google.golang.org/cloud/compute/metadata/metadata.go b/Godeps/_workspace/src/google.golang.org/cloud/compute/metadata/metadata.go
 index 7753a05..6102500 100644
 --- a/Godeps/_workspace/src/google.golang.org/cloud/compute/metadata/metadata.go

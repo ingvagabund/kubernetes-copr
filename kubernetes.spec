@@ -7,8 +7,16 @@
 # https://github.com/kubernetes/kubernetes
 %global provider_prefix	%{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     k8s.io/kubernetes
-%global commit		6234d6a0abd3323cd08c52602e4a91e47fc9491c
+%global commit		7d6c8b640f2e90cf2347fb46ef4cf46cd3280015
 %global shortcommit	%(c=%{commit}; echo ${c:0:7})
+
+%global con_provider         github
+%global con_provider_tld     com  
+%global con_project          kubernetes
+%global con_repo             contrib
+%global con_provider_prefix  %{con_provider}.%{con_provider_tld}/%{con_project}/%{con_repo}
+%global con_commit           36816275fd53c7a2ef59650c80e2820fe3595584
+%global con_shortcommit      %(c=%{con_commit}; echo ${c:0:7})
 
 #I really need this, otherwise "version_ldflags=$(kube::version_ldflags)"
 # does not work
@@ -16,21 +24,18 @@
 %global _checkshell	/bin/bash
 
 Name:		kubernetes
-Version:	1.0.7
+Version:	1.1.0
 Release:	0.1.git%{shortcommit}%{?dist}
 Summary:        Container cluster management
 License:        ASL 2.0
 URL:            %{import_path}
 Source0:        https://%{provider_prefix}/archive/%{commit}/%{repo}-%{shortcommit}.tar.gz
+Source1:        https://%{con_provider_prefix}/archive/%{con_commit}/%{con_repo}-%{con_shortcommit}.tar.gz
 Source2:        genmanpages.sh
 
-Patch1:         Fix-Persistent-Volumes-and-Persistent-Volume-Claims.patch
 Patch2:         Change-etcd-server-port.patch
 Patch3:         build-with-debug-info.patch
 Patch4:         change-internal-to-inteernal.patch
-Patch5:         Update-github.com-elazarl-go-bindata-assetfs-to-at-l.patch
-# backport refactoring of TLS connection, upstream issue #15224
-Patch6:         backport-refactoring-of-TLS-connection.patch
 
 # It obsoletes cadvisor but needs its source code (literally integrated)
 Obsoletes:      cadvisor
@@ -97,15 +102,14 @@ BuildRequires: golang >= 1.2-7
 Kubernetes client tools like kubectl
 
 %prep
+%setup -q -n %{con_repo}-%{con_commit} -T -b 1
 %setup -q -n %{repo}-%{commit}
-%patch1 -p1
+# move content of contrib back to kubernetes
+mv ../%{con_repo}-%{con_commit}/init contrib/init
+
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
-
-# backport refactoring of TLS connection
-%patch6 -p1
 
 %build
 export KUBE_GIT_TREE_STATE="clean"
@@ -113,6 +117,8 @@ export KUBE_GIT_COMMIT=%{commit}
 export KUBE_GIT_VERSION=v1.0.6
 
 hack/build-go.sh --use_go_build
+# remove import_known_versions.go
+rm -rf cmd/kube-version-change/import_known_versions.go
 hack/build-go.sh --use_go_build cmd/kube-version-change
 
 # convert md to man
@@ -245,6 +251,10 @@ getent passwd kube >/dev/null || useradd -r -g kube -d / -s /sbin/nologin \
 
 
 %changelog
+* Mon Nov 09 2015 jchaloup <jchaloup@redhat.com> - 1.1.0-0.1.git7d6c8b6
+- Update to v1.1.0
+  related: #1274854
+
 * Mon Nov 09 2015 jchaloup <jchaloup@redhat.com> - 1.0.7-0.1.git6234d6a
 - Update to v1.0.7
   related: #1274854

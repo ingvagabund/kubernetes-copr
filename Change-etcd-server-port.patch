@@ -1,0 +1,25 @@
+From b397f77147c7fd86d2b06f1a19cd471933d5d474 Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Mon, 14 Sep 2015 12:38:05 +0200
+Subject: [PATCH] Change etcd server port
+
+---
+ contrib/init/systemd/environ/apiserver | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/init/systemd/environ/apiserver b/contrib/init/systemd/environ/apiserver
+index d0b1900..328b5c4 100644
+--- a/contrib/init/systemd/environ/apiserver
++++ b/contrib/init/systemd/environ/apiserver
+@@ -14,7 +14,7 @@ KUBE_API_ADDRESS="--address=127.0.0.1"
+ # KUBELET_PORT="--kubelet_port=10250"
+ 
+ # Comma separated list of nodes in the etcd cluster
+-KUBE_ETCD_SERVERS="--etcd_servers=http://127.0.0.1:4001"
++KUBE_ETCD_SERVERS="--etcd_servers=http://127.0.0.1:2379"
+ 
+ # Address range to use for services
+ KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range=10.254.0.0/16"
+-- 
+1.9.3
+

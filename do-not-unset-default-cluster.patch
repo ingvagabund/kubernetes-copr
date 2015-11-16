@@ -1,0 +1,25 @@
+From 2d5b41c87c53840e7d97c93475dc81cb8a2b9b2b Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Wed, 30 Sep 2015 14:10:30 +0200
+Subject: [PATCH] do not unset default cluster
+
+---
+ pkg/cmd/util/clientcmd/factory.go | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/pkg/cmd/util/clientcmd/factory.go b/pkg/cmd/util/clientcmd/factory.go
+index 2fa9dc9..5e004e4 100644
+--- a/pkg/cmd/util/clientcmd/factory.go
++++ b/pkg/cmd/util/clientcmd/factory.go
+@@ -32,7 +32,7 @@ func New(flags *pflag.FlagSet) *Factory {
+ 	// DefaultCluster should not be a global
+ 	// A call to ClientConfig() should always return the best clientCfg possible
+ 	// even if an error was returned, and let the caller decide what to do
+-	kclientcmd.DefaultCluster.Server = ""
++	//kclientcmd.DefaultCluster.Server = ""
+ 
+ 	// TODO: there should be two client configs, one for OpenShift, and one for Kubernetes
+ 	clientConfig := DefaultClientConfig(flags)
+-- 
+1.9.3
+

@@ -1,0 +1,98 @@
+From b2c20400f1e35a4a04038d58fb364470de81af13 Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Tue, 20 Oct 2015 15:12:08 +0200
+Subject: [PATCH] hack test-cmd for os origin
+
+---
+ hack/lib/init.sh |  2 +-
+ hack/test-cmd.sh | 18 +++++++++---------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/hack/lib/init.sh b/hack/lib/init.sh
+index 8a2c428..992aa18 100644
+--- a/hack/lib/init.sh
++++ b/hack/lib/init.sh
+@@ -39,4 +39,4 @@ source "${KUBE_ROOT}/hack/lib/version.sh"
+ source "${KUBE_ROOT}/hack/lib/golang.sh"
+ source "${KUBE_ROOT}/hack/lib/etcd.sh"
+ 
+-KUBE_OUTPUT_HOSTBIN="${KUBE_OUTPUT_BINPATH}/$(kube::util::host_platform)"
++KUBE_OUTPUT_HOSTBIN="${KUBE_OUTPUT_HOSTBIN:-${KUBE_OUTPUT_BINPATH}/$(kube::util::host_platform)}"
+diff --git a/hack/test-cmd.sh b/hack/test-cmd.sh
+index 11ce998..284571e 100755
+--- a/hack/test-cmd.sh
++++ b/hack/test-cmd.sh
+@@ -186,14 +186,14 @@ runTests() {
+       -s "http://127.0.0.1:${API_PORT}"
+       --match-server-version
+     )
+-    [ "$(kubectl get nodes -o go-template='{{ .apiVersion }}' "${kube_flags[@]}")" == "v1" ]
++    [ "$(kubectl get nodes -o template --template="{{ .apiVersion }}" "${kube_flags[@]}")" == "v1" ]
+   else
+     kube_flags=(
+       -s "http://127.0.0.1:${API_PORT}"
+       --match-server-version
+       --api-version="${version}"
+     )
+-    [ "$(kubectl get nodes -o go-template='{{ .apiVersion }}' "${kube_flags[@]}")" == "${version}" ]
++    [ "$(kubectl get nodes -o template --template='{{ .apiVersion }}' "${kube_flags[@]}")" == "${version}" ]
+   fi
+   id_field=".metadata.name"
+   labels_field=".metadata.labels"
+@@ -215,13 +215,13 @@ runTests() {
+ 
+   # Make sure the UI can be proxied
+   start-proxy
+-  check-curl-proxy-code /ui 301
++  check-curl-proxy-code /ui 404
+   check-curl-proxy-code /metrics 200
+   check-curl-proxy-code /api/ui 404
+   if [[ -n "${version}" ]]; then
+     check-curl-proxy-code /api/${version}/namespaces 200
+   fi
+-  check-curl-proxy-code /static/ 200
++  check-curl-proxy-code /static/ 404
+   stop-proxy
+ 
+   # Make sure the in-development api is accessible by default
+@@ -232,7 +232,7 @@ runTests() {
+ 
+   # Custom paths let you see everything.
+   start-proxy /custom
+-  check-curl-proxy-code /custom/ui 301
++  check-curl-proxy-code /custom/ui 404
+   check-curl-proxy-code /custom/metrics 200
+   if [[ -n "${version}" ]]; then
+     check-curl-proxy-code /custom/api/${version}/namespaces 200
+@@ -429,7 +429,7 @@ runTests() {
+   # Command
+   # Needs to retry because other party may change the resource.
+   for count in $(seq 0 3); do
+-    resourceVersion=$(kubectl get "${kube_flags[@]}" pod valid-pod -o go-template='{{ .metadata.resourceVersion }}')
++    resourceVersion=$(kubectl get "${kube_flags[@]}" pod valid-pod -o template --template='{{ .metadata.resourceVersion }}')
+     kubectl patch "${kube_flags[@]}" pod valid-pod -p='{"spec":{"containers":[{"name": "kubernetes-serve-hostname", "image": "nginx"}]},"metadata":{"resourceVersion":"'$resourceVersion'"}}' 2> "${ERROR_FILE}" || true
+     if grep -q "the object has been modified" "${ERROR_FILE}"; then
+       kube::log::status "retry $1, error: $(cat ${ERROR_FILE})"
+@@ -443,7 +443,7 @@ runTests() {
+   done
+ 
+   ## If the resourceVersion is the different from the one stored in the server, the patch will be rejected.
+-  resourceVersion=$(kubectl get "${kube_flags[@]}" pod valid-pod -o go-template='{{ .metadata.resourceVersion }}')
++  resourceVersion=$(kubectl get "${kube_flags[@]}" pod valid-pod -o template --template='{{ .metadata.resourceVersion }}')
+   ((resourceVersion+=100))
+   # Command
+   kubectl patch "${kube_flags[@]}" pod valid-pod -p='{"spec":{"containers":[{"name": "kubernetes-serve-hostname", "image": "nginx"}]},"metadata":{"resourceVersion":"'$resourceVersion'"}}' 2> "${ERROR_FILE}" || true
+@@ -999,8 +999,8 @@ __EOF__
+   kubectl create -f examples/cassandra/cassandra-controller.yaml "${kube_flags[@]}"
+   kubectl scale rc cassandra --replicas=1 "${kube_flags[@]}"
+   kubectl create -f examples/cassandra/cassandra-service.yaml "${kube_flags[@]}"
+-  kube::test::get_object_assert "all -l'name=cassandra'" "{{range.items}}{{range .metadata.labels}}{{.}}:{{end}}{{end}}" 'cassandra:cassandra:cassandra:'
+-  kubectl delete all -l name=cassandra "${kube_flags[@]}"
++  kube::test::get_object_assert "rc,services,pods -l'name=cassandra'" "{{range.items}}{{range .metadata.labels}}{{.}}:{{end}}{{end}}" 'cassandra:cassandra:cassandra:'
++  kubectl delete rc,services,pods -l name=cassandra "${kube_flags[@]}"
+ 
+ 
+   ###########
+-- 
+1.9.3
+

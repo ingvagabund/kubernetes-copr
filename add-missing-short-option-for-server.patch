@@ -1,0 +1,27 @@
+From 5aff35b42fe2e10d3cef8cfa086c115960155089 Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Sat, 10 Oct 2015 00:16:54 +0200
+Subject: [PATCH] add missing short option for --server
+
+---
+ pkg/cmd/util/clientcmd/clientconfig.go | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/pkg/cmd/util/clientcmd/clientconfig.go b/pkg/cmd/util/clientcmd/clientconfig.go
+index 4e41a9d..77d1956 100644
+--- a/pkg/cmd/util/clientcmd/clientconfig.go
++++ b/pkg/cmd/util/clientcmd/clientconfig.go
+@@ -16,6 +16,10 @@ func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
+ 	overrideFlags.ContextOverrideFlags.Namespace.ShortName = "n"
+ 	overrideFlags.AuthOverrideFlags.Username.LongName = ""
+ 	overrideFlags.AuthOverrideFlags.Password.LongName = ""
++
++	// for compatibility with kubernetes, it is still provided
++	overrideFlags.ClusterOverrideFlags.APIServer.ShortName = "s"
++
+ 	clientcmd.BindOverrideFlags(overrides, flags, overrideFlags)
+ 
+ 	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides)
+-- 
+1.9.3
+

@@ -1,0 +1,131 @@
+From 1b48f948deb920bb2bfdafefe48d955ef97ad60f Mon Sep 17 00:00:00 2001
+From: Jan Chaloupka <jchaloup@redhat.com>
+Date: Fri, 9 Oct 2015 19:53:00 +0200
+Subject: [PATCH] append missing flags to cobra flags
+
+---
+ pkg/cmd/server/start/kubernetes/apiserver.go   | 5 +++--
+ pkg/cmd/server/start/kubernetes/controllers.go | 5 +++--
+ pkg/cmd/server/start/kubernetes/kubelet.go     | 5 +++--
+ pkg/cmd/server/start/kubernetes/proxy.go       | 5 +++--
+ pkg/cmd/server/start/kubernetes/scheduler.go   | 5 +++--
+ 5 files changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/pkg/cmd/server/start/kubernetes/apiserver.go b/pkg/cmd/server/start/kubernetes/apiserver.go
+index 21a38d5..fdfeec3 100644
+--- a/pkg/cmd/server/start/kubernetes/apiserver.go
++++ b/pkg/cmd/server/start/kubernetes/apiserver.go
+@@ -1,6 +1,7 @@
+ package kubernetes
+ 
+ import (
++	"flag"
+ 	"fmt"
+ 	"io"
+ 	"os"
+@@ -40,8 +41,8 @@ func NewAPIServerCommand(name, fullName string, out io.Writer) *cobra.Command {
+ 	cmd.SetOutput(out)
+ 
+ 	flags := cmd.Flags()
+-	//TODO: uncomment after picking up a newer cobra
+-	//pflag.AddFlagSetToPFlagSet(flag, flags)
++	flags.SetNormalizeFunc(util.WordSepNormalizeFunc)
++	flags.AddGoFlagSet(flag.CommandLine)
+ 	s.AddFlags(flags)
+ 
+ 	return cmd
+diff --git a/pkg/cmd/server/start/kubernetes/controllers.go b/pkg/cmd/server/start/kubernetes/controllers.go
+index c92567d..eaad8a5 100644
+--- a/pkg/cmd/server/start/kubernetes/controllers.go
++++ b/pkg/cmd/server/start/kubernetes/controllers.go
+@@ -1,6 +1,7 @@
+ package kubernetes
+ 
+ import (
++	"flag"
+ 	"fmt"
+ 	"io"
+ 	"os"
+@@ -40,8 +41,8 @@ func NewControllersCommand(name, fullName string, out io.Writer) *cobra.Command
+ 	cmd.SetOutput(out)
+ 
+ 	flags := cmd.Flags()
+-	//TODO: uncomment after picking up a newer cobra
+-	//pflag.AddFlagSetToPFlagSet(flag, flags)
++	flags.SetNormalizeFunc(util.WordSepNormalizeFunc)
++	flags.AddGoFlagSet(flag.CommandLine)
+ 	s.AddFlags(flags)
+ 
+ 	return cmd
+diff --git a/pkg/cmd/server/start/kubernetes/kubelet.go b/pkg/cmd/server/start/kubernetes/kubelet.go
+index 03a7227..6436558 100644
+--- a/pkg/cmd/server/start/kubernetes/kubelet.go
++++ b/pkg/cmd/server/start/kubernetes/kubelet.go
+@@ -1,6 +1,7 @@
+ package kubernetes
+ 
+ import (
++	"flag"
+ 	"fmt"
+ 	"io"
+ 	"os"
+@@ -39,8 +40,8 @@ func NewKubeletCommand(name, fullName string, out io.Writer) *cobra.Command {
+ 	cmd.SetOutput(out)
+ 
+ 	flags := cmd.Flags()
+-	//TODO: uncomment after picking up a newer cobra
+-	//pflag.AddFlagSetToPFlagSet(flag, flags)
++	flags.SetNormalizeFunc(util.WordSepNormalizeFunc)
++	flags.AddGoFlagSet(flag.CommandLine)
+ 	s.AddFlags(flags)
+ 
+ 	return cmd
+diff --git a/pkg/cmd/server/start/kubernetes/proxy.go b/pkg/cmd/server/start/kubernetes/proxy.go
+index 9893382..435c2ba 100644
+--- a/pkg/cmd/server/start/kubernetes/proxy.go
++++ b/pkg/cmd/server/start/kubernetes/proxy.go
+@@ -1,6 +1,7 @@
+ package kubernetes
+ 
+ import (
++	"flag"
+ 	"fmt"
+ 	"io"
+ 	"os"
+@@ -40,8 +41,8 @@ func NewProxyCommand(name, fullName string, out io.Writer) *cobra.Command {
+ 	cmd.SetOutput(out)
+ 
+ 	flags := cmd.Flags()
+-	//TODO: uncomment after picking up a newer cobra
+-	//pflag.AddFlagSetToPFlagSet(flag, flags)
++	flags.SetNormalizeFunc(util.WordSepNormalizeFunc)
++	flags.AddGoFlagSet(flag.CommandLine)
+ 	s.AddFlags(flags)
+ 
+ 	return cmd
+diff --git a/pkg/cmd/server/start/kubernetes/scheduler.go b/pkg/cmd/server/start/kubernetes/scheduler.go
+index 0c23e48..8756bb2 100644
+--- a/pkg/cmd/server/start/kubernetes/scheduler.go
++++ b/pkg/cmd/server/start/kubernetes/scheduler.go
+@@ -1,6 +1,7 @@
+ package kubernetes
+ 
+ import (
++	"flag"
+ 	"fmt"
+ 	"io"
+ 	"os"
+@@ -40,8 +41,8 @@ func NewSchedulerCommand(name, fullName string, out io.Writer) *cobra.Command {
+ 	cmd.SetOutput(out)
+ 
+ 	flags := cmd.Flags()
+-	//TODO: uncomment after picking up a newer cobra
+-	//pflag.AddFlagSetToPFlagSet(flag, flags)
++	flags.SetNormalizeFunc(util.WordSepNormalizeFunc)
++	flags.AddGoFlagSet(flag.CommandLine)
+ 	s.AddFlags(flags)
+ 
+ 	return cmd
+-- 
+1.9.3
+

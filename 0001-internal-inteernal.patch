@@ -1,11 +1,10 @@
-From 3410b407040157a276456eaaa22c2297e302f70e Mon Sep 17 00:00:00 2001
+From cb965eaa282d735497e5e8d10b35b4867473a968 Mon Sep 17 00:00:00 2001
 From: Jan Chaloupka <jchaloup@redhat.com>
-Date: Sat, 1 Aug 2015 10:42:54 +0200
-Subject: [PATCH] change internal to inteernal
+Date: Tue, 20 Oct 2015 12:41:40 +0200
+Subject: [PATCH] internal->inteernal
 
 ---
- .../gcloud-golang/compute/metadata/metadata.go     |    2 +-
- .../cloud/compute/metadata/metadata.go             |    2 +-
+ .../cloud/compute/metadata/metadata.go             |    4 +-
  .../src/google.golang.org/cloud/inteernal/cloud.go |  128 ++
  .../cloud/inteernal/datastore/datastore_v1.pb.go   | 1633 ++++++++++++++++++++
  .../cloud/inteernal/datastore/datastore_v1.proto   |  594 +++++++
@@ -14,7 +13,7 @@ Subject: [PATCH] change internal to inteernal
  .../cloud/internal/datastore/datastore_v1.pb.go    | 1633 --------------------
  .../cloud/internal/datastore/datastore_v1.proto    |  594 -------
  .../cloud/internal/testutil/context.go             |   57 -
- 10 files changed, 2414 insertions(+), 2414 deletions(-)
+ 9 files changed, 2414 insertions(+), 2414 deletions(-)
  create mode 100644 Godeps/_workspace/src/google.golang.org/cloud/inteernal/cloud.go
  create mode 100644 Godeps/_workspace/src/google.golang.org/cloud/inteernal/datastore/datastore_v1.pb.go
  create mode 100644 Godeps/_workspace/src/google.golang.org/cloud/inteernal/datastore/datastore_v1.proto
@@ -24,21 +23,8 @@ Subject: [PATCH] change internal to inteernal
  delete mode 100644 Godeps/_workspace/src/google.golang.org/cloud/internal/datastore/datastore_v1.proto
  delete mode 100644 Godeps/_workspace/src/google.golang.org/cloud/internal/testutil/context.go
 
-diff --git a/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go b/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go
-index b007cde..c92267f 100644
---- a/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go
-+++ b/Godeps/_workspace/src/github.com/GoogleCloudPlatform/gcloud-golang/compute/metadata/metadata.go
-@@ -30,7 +30,7 @@ import (
- 	"sync"
- 	"time"
- 
--	"google.golang.org/cloud/internal"
-+	"google.golang.org/cloud/inteernal"
- )
- 
- type cachedValue struct {
 diff --git a/Godeps/_workspace/src/google.golang.org/cloud/compute/metadata/metadata.go b/Godeps/_workspace/src/google.golang.org/cloud/compute/metadata/metadata.go
-index 7753a05..6102500 100644
+index 7753a05..2d9c630 100644
 --- a/Godeps/_workspace/src/google.golang.org/cloud/compute/metadata/metadata.go
 +++ b/Godeps/_workspace/src/google.golang.org/cloud/compute/metadata/metadata.go
 @@ -29,7 +29,7 @@ import (
@@ -50,9 +36,18 @@ index 7753a05..6102500 100644
  )
  
  type cachedValue struct {
+@@ -46,7 +46,7 @@ var (
+ )
+ 
+ var metaClient = &http.Client{
+-	Transport: &internal.Transport{
++	Transport: &inteernal.Transport{
+ 		Base: &http.Transport{
+ 			Dial: dialer().Dial,
+ 			ResponseHeaderTimeout: 750 * time.Millisecond,
 diff --git a/Godeps/_workspace/src/google.golang.org/cloud/inteernal/cloud.go b/Godeps/_workspace/src/google.golang.org/cloud/inteernal/cloud.go
 new file mode 100644
-index 0000000..984323c
+index 0000000..af9355b
 --- /dev/null
 +++ b/Godeps/_workspace/src/google.golang.org/cloud/inteernal/cloud.go
 @@ -0,0 +1,128 @@
@@ -73,7 +68,7 @@ index 0000000..984323c
 +// Package internal provides support for the cloud packages.
 +//
 +// Users should not import this package directly.
-+package internal
++package inteernal
 +
 +import (
 +	"fmt"

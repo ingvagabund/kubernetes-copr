@@ -1,6 +1,6 @@
-From 69dffad2d421aa839b49a6b12b64ddd481684a2c Mon Sep 17 00:00:00 2001
+From 039b0084d6d1db16f6ee1bc7dd25f1e9b839e19b Mon Sep 17 00:00:00 2001
 From: Jan Chaloupka <jchaloup@redhat.com>
-Date: Mon, 9 Nov 2015 13:17:46 +0100
+Date: Thu, 28 May 2015 10:45:17 +0200
 Subject: [PATCH] build with debug info
 
 ---
@@ -8,24 +8,24 @@ Subject: [PATCH] build with debug info
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/hack/lib/golang.sh b/hack/lib/golang.sh
-index c3daf25..21dda03 100755
+index 6283a55..013caa7 100644
 --- a/hack/lib/golang.sh
 +++ b/hack/lib/golang.sh
-@@ -369,7 +369,7 @@ kube::golang::build_binaries_for_platform() {
+@@ -333,7 +333,7 @@ kube::golang::build_binaries_for_platform() {
        local outfile=$(kube::golang::output_filename_for_binary "${binary}" "${platform}")
        CGO_ENABLED=0 go build -o "${outfile}" \
          "${goflags[@]:+${goflags[@]}}" \
--        -ldflags "${goldflags}" \
-+        -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n') ${goldflags}" \
+-        -ldflags "${version_ldflags}" \
++        -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n') ${version_ldflags}" \
          "${binary}"
        kube::log::progress "*"
      done
-@@ -377,7 +377,7 @@ kube::golang::build_binaries_for_platform() {
+@@ -341,7 +341,7 @@ kube::golang::build_binaries_for_platform() {
        local outfile=$(kube::golang::output_filename_for_binary "${binary}" "${platform}")
        go build -o "${outfile}" \
          "${goflags[@]:+${goflags[@]}}" \
--        -ldflags "${goldflags}" \
-+        -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n') ${goldflags}" \
+-        -ldflags "${version_ldflags}" \
++        -ldflags "-B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \n') ${version_ldflags}" \
          "${binary}"
        kube::log::progress "*"
      done

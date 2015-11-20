@@ -1,0 +1,13 @@
+# install all rpms
+systemctl start etcd
+systemctl start docker
+
+# edit /etc/kubernetes/apiserver and remove ServiceAccount from KUBE_ADMISSION_CONTROL
+vi /etc/kubernetes/apiserver
+
+# start all services
+systemctl start kube-apiserver kube-controller-manager kube-scheduler kubelet kube-proxy
+pushd /var/lib/kubernetes-unit-test
+kubectl create -f docs/admin/limitrange/valid-pod.yaml
+kubectl get pods
+kubectl delete pod valid-pod

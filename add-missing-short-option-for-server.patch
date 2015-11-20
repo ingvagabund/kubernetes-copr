@@ -1,6 +1,6 @@
-From 5aff35b42fe2e10d3cef8cfa086c115960155089 Mon Sep 17 00:00:00 2001
+From c6ae12fd7c560c2cfbc9cb695c29ac1a36e072cd Mon Sep 17 00:00:00 2001
 From: Jan Chaloupka <jchaloup@redhat.com>
-Date: Sat, 10 Oct 2015 00:16:54 +0200
+Date: Fri, 20 Nov 2015 14:36:15 +0100
 Subject: [PATCH] add missing short option for --server
 
 ---
@@ -8,10 +8,10 @@ Subject: [PATCH] add missing short option for --server
  1 file changed, 4 insertions(+)
 
 diff --git a/pkg/cmd/util/clientcmd/clientconfig.go b/pkg/cmd/util/clientcmd/clientconfig.go
-index 4e41a9d..77d1956 100644
+index c152100..64ceedf 100644
 --- a/pkg/cmd/util/clientcmd/clientconfig.go
 +++ b/pkg/cmd/util/clientcmd/clientconfig.go
-@@ -16,6 +16,10 @@ func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
+@@ -18,6 +18,10 @@ func DefaultClientConfig(flags *pflag.FlagSet) clientcmd.ClientConfig {
  	overrideFlags.ContextOverrideFlags.Namespace.ShortName = "n"
  	overrideFlags.AuthOverrideFlags.Username.LongName = ""
  	overrideFlags.AuthOverrideFlags.Password.LongName = ""
@@ -20,8 +20,8 @@ index 4e41a9d..77d1956 100644
 +	overrideFlags.ClusterOverrideFlags.APIServer.ShortName = "s"
 +
  	clientcmd.BindOverrideFlags(overrides, flags, overrideFlags)
- 
- 	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, overrides)
+ 	cobra.MarkFlagFilename(flags, overrideFlags.AuthOverrideFlags.ClientCertificate.LongName)
+ 	cobra.MarkFlagFilename(flags, overrideFlags.AuthOverrideFlags.ClientKey.LongName)
 -- 
 1.9.3
 

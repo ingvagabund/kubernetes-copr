@@ -1,71 +1,75 @@
-From e03bb7f1e679d9ee7f18d82bfa7f794f12c54f3d Mon Sep 17 00:00:00 2001
+From 0a64c5609be7a68cc095dcdd2310d462f3c42e79 Mon Sep 17 00:00:00 2001
 From: Jan Chaloupka <jchaloup@redhat.com>
-Date: Mon, 16 Nov 2015 19:15:26 +0100
-Subject: [PATCH] hack test-cmd.sh
+Date: Fri, 20 Nov 2015 15:50:59 +0100
+Subject: [PATCH] hack hack/test-cmd.sh
 
 ---
- hack/test-cmd.sh | 48 ++++++++++++++++++++++++------------------------
- 1 file changed, 24 insertions(+), 24 deletions(-)
+ hack/lib/init.sh |  2 +-
+ hack/test-cmd.sh | 50 +++++++++++++++++++++++++-------------------------
+ 2 files changed, 26 insertions(+), 26 deletions(-)
 
+diff --git a/hack/lib/init.sh b/hack/lib/init.sh
+index 8a2c428..75ee958 100644
+--- a/hack/lib/init.sh
++++ b/hack/lib/init.sh
+@@ -39,4 +39,4 @@ source "${KUBE_ROOT}/hack/lib/version.sh"
+ source "${KUBE_ROOT}/hack/lib/golang.sh"
+ source "${KUBE_ROOT}/hack/lib/etcd.sh"
+ 
+-KUBE_OUTPUT_HOSTBIN="${KUBE_OUTPUT_BINPATH}/$(kube::util::host_platform)"
++KUBE_OUTPUT_HOSTBIN="/usr/bin"
 diff --git a/hack/test-cmd.sh b/hack/test-cmd.sh
-index f925d72..aaa06c3 100755
+index fb440ac..2ddb64a 100755
 --- a/hack/test-cmd.sh
 +++ b/hack/test-cmd.sh
-@@ -127,7 +127,7 @@ kube::util::wait_for_url "http://127.0.0.1:${KUBELET_HEALTHZ_PORT}/healthz" "kub
- 
- # Start kube-apiserver
- kube::log::status "Starting kube-apiserver"
--KUBE_API_VERSIONS="v1,experimental/v1alpha1" "${KUBE_OUTPUT_HOSTBIN}/kube-apiserver" \
-+KUBE_API_VERSIONS="v1,v1beta3,extensions/v1beta1" "${KUBE_OUTPUT_HOSTBIN}/kube-apiserver" \
-   --address="127.0.0.1" \
-   --public-address-override="127.0.0.1" \
-   --port="${API_PORT}" \
-@@ -189,32 +189,32 @@ runTests() {
+@@ -222,31 +222,31 @@ runTests() {
+   # kubectl local proxy #
    #######################
  
-   # Make sure the UI can be proxied
--  start-proxy --api-prefix=/
+-  # Make sure the UI can be proxied
+-  start-proxy
 -  check-curl-proxy-code /ui 301
 -  check-curl-proxy-code /metrics 200
--  if [[ -n "${version}" ]]; then
--    check-curl-proxy-code /api/${version}/namespaces 200
--  fi
--  stop-proxy
-+  #start-proxy --api-prefix=/
-+  #check-curl-proxy-code /ui 301
-+  #check-curl-proxy-code /metrics 200
-+  #if [[ -n "${version}" ]]; then
-+  #  check-curl-proxy-code /api/${version}/namespaces 200
-+  #fi
-+  #stop-proxy
- 
-   # Default proxy locks you into the /api path (legacy behavior)
--  start-proxy
--  check-curl-proxy-code /ui 404
--  check-curl-proxy-code /metrics 404
 -  check-curl-proxy-code /api/ui 404
 -  if [[ -n "${version}" ]]; then
 -    check-curl-proxy-code /api/${version}/namespaces 200
 -  fi
+-  check-curl-proxy-code /static/ 200
 -  stop-proxy
-+  #start-proxy
-+  #check-curl-proxy-code /ui 404
-+  #check-curl-proxy-code /metrics 404
-+  #check-curl-proxy-code /api/ui 404
-+  #if [[ -n "${version}" ]]; then
-+  #  check-curl-proxy-code /api/${version}/namespaces 200
-+  #fi
-+  #stop-proxy
- 
-   # Custom paths let you see everything.
--  start-proxy --api-prefix=/custom
+-
+-  # Make sure the in-development api is accessible by default
+-  start-proxy
+-  check-curl-proxy-code /apis 200
+-  check-curl-proxy-code /apis/extensions/ 200
+-  stop-proxy
+-
+-  # Custom paths let you see everything.
+-  start-proxy /custom
 -  check-curl-proxy-code /custom/ui 301
 -  check-curl-proxy-code /custom/metrics 200
 -  if [[ -n "${version}" ]]; then
 -    check-curl-proxy-code /custom/api/${version}/namespaces 200
 -  fi
 -  stop-proxy
-+  #start-proxy --api-prefix=/custom
++  ## Make sure the UI can be proxied
++  #start-proxy
++  #check-curl-proxy-code /ui 301
++  #check-curl-proxy-code /metrics 200
++  #check-curl-proxy-code /api/ui 404
++  #if [[ -n "${version}" ]]; then
++  #  check-curl-proxy-code /api/${version}/namespaces 200
++  #fi
++  #check-curl-proxy-code /static/ 200
++  #stop-proxy
++
++  ## Make sure the in-development api is accessible by default
++  #start-proxy
++  #check-curl-proxy-code /apis 200
++  #check-curl-proxy-code /apis/extensions/ 200
++  #stop-proxy
++
++  ## Custom paths let you see everything.
++  #start-proxy /custom
 +  #check-curl-proxy-code /custom/ui 301
 +  #check-curl-proxy-code /custom/metrics 200
 +  #if [[ -n "${version}" ]]; then
@@ -75,15 +79,6 @@ index f925d72..aaa06c3 100755
  
    ###########################
    # POD creation / deletion #
-@@ -829,7 +829,7 @@ kube_api_versions=(
-   v1
- )
- for version in "${kube_api_versions[@]}"; do
--  KUBE_API_VERSIONS="v1,experimental/v1alpha1" runTests "${version}"
-+  KUBE_API_VERSIONS="v1,v1beta3,extensions/v1beta1" runTests "${version}"
- done
- 
- kube::log::status "TEST PASSED"
 -- 
 1.9.3
 

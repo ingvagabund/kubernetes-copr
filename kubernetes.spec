@@ -6,7 +6,7 @@
 # https://github.com/openshift/origin
 %global provider_prefix	%{provider}.%{provider_tld}/%{project}/%{repo}
 %global import_path     k8s.io/kubernetes
-%global commit		ac7a99ad0f0f42d3ef3e4ca5b104f2812e532141
+%global commit		a41c9ff38d52fd508481c3c2bac13d52871fde02
 %global shortcommit	%(c=%{commit}; echo ${c:0:7})
 
 %global openshift_ip    github.com/openshift/origin
@@ -43,7 +43,7 @@
 
 Name:		kubernetes
 Version:	1.1.0
-Release:	0.2.origin.git%{k8s_shortcommit}%{?dist}
+Release:	0.3.origin.git%{k8s_shortcommit}%{?dist}
 Summary:        Container cluster management
 License:        ASL 2.0
 URL:            %{import_path}
@@ -140,7 +140,7 @@ Kubernetes client tools like kubectl
 %prep
 %setup -q -n %{k8s_repo}-%{k8s_commit} -T -b 1
 # Hack test-cmd.sh to be run with os binaries
-#%patch9 -p1
+%patch9 -p1
 # Keep solid port for kube-proxy
 %patch10 -p1
 
@@ -347,6 +347,9 @@ getent passwd kube >/dev/null || useradd -r -g kube -d / -s /sbin/nologin \
 %{_sharedstatedir}/kubernetes-unit-test/
 
 %changelog
+* Fri Nov 20 2015 jchaloup <jchaloup@redhat.com> - 1.1.0-0.3.origin.git4c8e6f4
+- Bump to upstream a41c9ff38d52fd508481c3c2bac13d52871fde02
+
 * Fri Nov 20 2015 jchaloup <jchaloup@redhat.com> - 1.1.0-0.2.origin.git4c8e6f4
 - Update to origin v1.1
 

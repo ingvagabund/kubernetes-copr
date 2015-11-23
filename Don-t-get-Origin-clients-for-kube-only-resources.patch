@@ -1,0 +1,149 @@
+From 63ad30a9974f9a977db5f050ef67dba0b163648b Mon Sep 17 00:00:00 2001
+From: Andy Goldstein <agoldste@redhat.com>
+Date: Fri, 20 Nov 2015 15:15:31 -0500
+Subject: [PATCH] Don't get Origin clients for kube-only resources
+
+To support kubectl as a symlink to openshift, make sure we don't try to
+get clients for Origin resources when the target is a Kube resource.
+This fixes logs, scale, delete, and attach. Note: "kubectl get all" is
+still broken.
+---
+ pkg/cmd/util/clientcmd/clientconfig_test.go | 18 ++++++++++
+ pkg/cmd/util/clientcmd/factory.go           | 54 +++++++++++++++++------------
+ 2 files changed, 50 insertions(+), 22 deletions(-)
+ create mode 100644 pkg/cmd/util/clientcmd/clientconfig_test.go
+
+diff --git a/pkg/cmd/util/clientcmd/clientconfig_test.go b/pkg/cmd/util/clientcmd/clientconfig_test.go
+new file mode 100644
+index 0000000..80d45a2
+--- /dev/null
++++ b/pkg/cmd/util/clientcmd/clientconfig_test.go
+@@ -0,0 +1,18 @@
++package clientcmd
++
++import (
++	"testing"
++
++	"github.com/spf13/pflag"
++)
++
++func TestDefaultShorthands(t *testing.T) {
++	flags := pflag.NewFlagSet("test", pflag.ExitOnError)
++	_ = DefaultClientConfig(flags)
++
++	// ensure we are consistent with the shorthand flags Kubernetes sets upstream
++	apiServer := flags.Lookup("server")
++	if e, a := "s", apiServer.Shorthand; e != a {
++		t.Errorf("server shorthand: expected %q, got %q", e, a)
++	}
++}
+diff --git a/pkg/cmd/util/clientcmd/factory.go b/pkg/cmd/util/clientcmd/factory.go
+index b10bee6..ceee5da 100644
+--- a/pkg/cmd/util/clientcmd/factory.go
++++ b/pkg/cmd/util/clientcmd/factory.go
+@@ -185,25 +185,29 @@ func NewFactory(clientConfig kclientcmd.ClientConfig) *Factory {
+ 	}
+ 	kScalerFunc := w.Factory.Scaler
+ 	w.Scaler = func(mapping *meta.RESTMapping) (kubectl.Scaler, error) {
+-		oc, kc, err := w.Clients()
+-		if err != nil {
+-			return nil, err
+-		}
++		if latest.OriginKind(mapping.Kind, mapping.APIVersion) {
++			oc, kc, err := w.Clients()
++			if err != nil {
++				return nil, err
++			}
+ 
+-		if mapping.Kind == "DeploymentConfig" {
+-			return deployscaler.NewDeploymentConfigScaler(oc, kc), nil
++			if mapping.Kind == "DeploymentConfig" {
++				return deployscaler.NewDeploymentConfigScaler(oc, kc), nil
++			}
+ 		}
+ 		return kScalerFunc(mapping)
+ 	}
+ 	kReaperFunc := w.Factory.Reaper
+ 	w.Reaper = func(mapping *meta.RESTMapping) (kubectl.Reaper, error) {
+-		oc, kc, err := w.Clients()
+-		if err != nil {
+-			return nil, err
+-		}
++		if latest.OriginKind(mapping.Kind, mapping.APIVersion) {
++			oc, kc, err := w.Clients()
++			if err != nil {
++				return nil, err
++			}
+ 
+-		if mapping.Kind == "DeploymentConfig" {
+-			return deployreaper.NewDeploymentConfigReaper(oc, kc), nil
++			if mapping.Kind == "DeploymentConfig" {
++				return deployreaper.NewDeploymentConfigReaper(oc, kc), nil
++			}
+ 		}
+ 		return kReaperFunc(mapping)
+ 	}
+@@ -234,17 +238,16 @@ func NewFactory(clientConfig kclientcmd.ClientConfig) *Factory {
+ 	}
+ 	kLogsForObjectFunc := w.Factory.LogsForObject
+ 	w.LogsForObject = func(object, options runtime.Object) (*kclient.Request, error) {
+-		oc, _, err := w.Clients()
+-		if err != nil {
+-			return nil, err
+-		}
+-
+ 		switch t := object.(type) {
+ 		case *deployapi.DeploymentConfig:
+ 			dopts, ok := options.(*deployapi.DeploymentLogOptions)
+ 			if !ok {
+ 				return nil, errors.New("provided options object is not a DeploymentLogOptions")
+ 			}
++			oc, _, err := w.Clients()
++			if err != nil {
++				return nil, err
++			}
+ 			return oc.DeploymentLogs(t.Namespace).Get(t.Name, *dopts), nil
+ 		case *buildapi.Build:
+ 			bopts, ok := options.(*buildapi.BuildLogOptions)
+@@ -255,12 +258,20 @@ func NewFactory(clientConfig kclientcmd.ClientConfig) *Factory {
+ 				// should --version work with builds at all?
+ 				return nil, errors.New("cannot specify a version and a build")
+ 			}
++			oc, _, err := w.Clients()
++			if err != nil {
++				return nil, err
++			}
+ 			return oc.BuildLogs(t.Namespace).Get(t.Name, *bopts), nil
+ 		case *buildapi.BuildConfig:
+ 			bopts, ok := options.(*buildapi.BuildLogOptions)
+ 			if !ok {
+ 				return nil, errors.New("provided options object is not a BuildLogOptions")
+ 			}
++			oc, _, err := w.Clients()
++			if err != nil {
++				return nil, err
++			}
+ 			builds, err := oc.Builds(t.Namespace).List(labels.Everything(), fields.Everything())
+ 			if err != nil {
+ 				return nil, err
+@@ -292,13 +303,12 @@ func NewFactory(clientConfig kclientcmd.ClientConfig) *Factory {
+ 	}
+ 	kAttachablePodForObjectFunc := w.Factory.AttachablePodForObject
+ 	w.AttachablePodForObject = func(object runtime.Object) (*api.Pod, error) {
+-		oc, kc, err := w.Clients()
+-		if err != nil {
+-			return nil, err
+-		}
+ 		switch t := object.(type) {
+ 		case *deployapi.DeploymentConfig:
+-			var err error
++			oc, kc, err := w.Clients()
++			if err != nil {
++				return nil, err
++			}
+ 			var pods *api.PodList
+ 			for pods == nil || len(pods.Items) == 0 {
+ 				if t.LatestVersion == 0 {
+-- 
+1.9.3
+

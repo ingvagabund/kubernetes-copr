@@ -1,0 +1,25 @@
+From f9a018d454967d14a865da0831660b3b36c8c47d Mon Sep 17 00:00:00 2001
+From: Andy Goldstein <agoldste@redhat.com>
+Date: Fri, 20 Nov 2015 15:28:14 -0500
+Subject: [PATCH] Add missing kube_flags to kubectl scale in hack/test-cmd.sh
+
+---
+ hack/test-cmd.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hack/test-cmd.sh b/hack/test-cmd.sh
+index 271c982..53a3545 100755
+--- a/hack/test-cmd.sh
++++ b/hack/test-cmd.sh
+@@ -848,7 +848,7 @@ __EOF__
+   kubectl create -f examples/guestbook/redis-master-controller.yaml "${kube_flags[@]}"
+   kubectl create -f examples/guestbook/redis-slave-controller.yaml "${kube_flags[@]}"
+   # Command
+-  kubectl scale rc/redis-master rc/redis-slave --replicas=4
++  kubectl scale rc/redis-master rc/redis-slave --replicas=4 "${kube_flags[@]}"
+   # Post-condition: 4 replicas each
+   kube::test::get_object_assert 'rc redis-master' "{{$rc_replicas_field}}" '4'
+   kube::test::get_object_assert 'rc redis-slave' "{{$rc_replicas_field}}" '4'
+-- 
+1.9.3
+

@@ -43,7 +43,7 @@
 
 Name:		kubernetes
 Version:	1.1.0
-Release:	0.3.origin.git%{k8s_shortcommit}%{?dist}
+Release:	0.4.origin.git%{k8s_shortcommit}%{?dist}
 Summary:        Container cluster management
 License:        ASL 2.0
 URL:            %{import_path}
@@ -59,13 +59,17 @@ Patch2:         Change-etcd-server-port.patch
 Patch4:         internal-to-inteernal.patch
 Patch5:         0001-internal-inteernal.patch
 
-# k8s uses default cluster if not specified, o4n does not
-Patch7:         do-not-unset-default-cluster.patch
+# Add missing kube_flags to kubectl scale in hack/test-cmd.sh
+# upstream #17585
+Patch7:         Add-missing-kube_flags-to-kubectl-scale-in-hack-test.patch
 
 Patch8:         add-missing-short-option-for-server.patch
 Patch9:         hack-test-cmd.sh.patch
 # Due to k8s 5d08dcf8377e76f2ce303dc79404f511ebef82e3
 Patch10:        keep-solid-port-for-kube-proxy.patch
+
+# don't use oapi for kubernetes kinds
+Patch11:        Don-t-get-Origin-clients-for-kube-only-resources.patch
 
 # It obsoletes cadvisor but needs its source code (literally integrated)
 Obsoletes:      cadvisor
@@ -139,6 +143,9 @@ Kubernetes client tools like kubectl
 
 %prep
 %setup -q -n %{k8s_repo}-%{k8s_commit} -T -b 1
+# Add missing kube_flags to kubectl scale in hack/test-cmd.sh
+# upstream #17585
+%patch7 -p1
 # Hack test-cmd.sh to be run with os binaries
 %patch9 -p1
 # Keep solid port for kube-proxy
@@ -163,11 +170,11 @@ rm -rf cmd/kube-version-change/import_known_versions.go
 # internal -> inteernal
 %patch4 -p1
 %patch5 -p1
-# do not unset default cluster
-%patch7 -p1
 
 # add missing -s for --server
 %patch8 -p1
+# don't use oapi for kubernetes kinds
+%patch11 -p1
 
 %build
 # Don't judge me for this ... it's so bad.
@@ -347,6 +354,9 @@ getent passwd kube >/dev/null || useradd -r -g kube -d / -s /sbin/nologin \
 %{_sharedstatedir}/kubernetes-unit-test/
 
 %changelog
+* Mon Nov 23 2015 jchaloup <jchaloup@redhat.com> - 1.1.0-0.4.origin.git4c8e6f4
+- Add fixed to run hack/test-cmd.sh
+
 * Fri Nov 20 2015 jchaloup <jchaloup@redhat.com> - 1.1.0-0.3.origin.git4c8e6f4
 - Bump to upstream a41c9ff38d52fd508481c3c2bac13d52871fde02
 
